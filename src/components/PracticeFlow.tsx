@@ -189,7 +189,7 @@ export function PracticeFlow() {
             </div>
           </div>
           <p className="tiny" style={{ marginTop: 12 }}>
-            {s.factRecords} {summary.factRecords} · {s.daysCovered} {summary.daysCovered}
+            {format(s.summaryLine, { facts: summary.factRecords, days: summary.daysCovered })}
           </p>
         </div>
 

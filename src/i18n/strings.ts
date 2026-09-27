@@ -45,6 +45,7 @@ export interface UiStrings {
   continueChallenge: string;
   endToday: string;
   factRecords: string;
+  summaryLine: string;
   todayDone: string;
 
   // 漂移类型
@@ -70,6 +71,7 @@ export interface UiStrings {
   bandHint: string;
   totalAnswers: string;
   daysCovered: string;
+  practiceDays: string;
   categoryForgotRate: string;
   noData: string;
 
@@ -132,6 +134,7 @@ const zh: UiStrings = {
   continueChallenge: '继续挑战',
   endToday: '结束今天的练习',
   factRecords: '事实记录',
+  summaryLine: '事实记录 {facts} 条 · 涉及 {days} 个日子',
   todayDone: '今天的练习已完成',
 
   driftConflict: '两天的答案互相矛盾',
@@ -155,7 +158,8 @@ const zh: UiStrings = {
   bandHint:
     '三档分开看，才能看出「是记性不行，还是只是隔得太久」。一周以上还能记住的比例低于昨天前天，是正常的。',
   totalAnswers: '累计作答',
-  daysCovered: '覆盖天数',
+  daysCovered: '涉及天数',
+  practiceDays: '练习天数',
   categoryForgotRate: '想不起来的比例',
   noData: '还没有足够的数据。',
 
@@ -216,6 +220,7 @@ const en: UiStrings = {
   continueChallenge: 'Keep going',
   endToday: 'Finish for today',
   factRecords: 'Fact records',
+  summaryLine: '{facts} fact records · {days} days recalled',
   todayDone: "Today's practice is done",
 
   driftConflict: 'Conflicting answers',
@@ -239,7 +244,8 @@ const en: UiStrings = {
   bandHint:
     'Splitting by distance tells you whether it is your memory or just the gap. A lower number a week out is normal.',
   totalAnswers: 'Total answers',
-  daysCovered: 'Days covered',
+  daysCovered: 'Days recalled',
+  practiceDays: 'Practice days',
   categoryForgotRate: 'Forgotten rate',
   noData: 'Not enough data yet.',
 

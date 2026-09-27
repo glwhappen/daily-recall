@@ -20,6 +20,11 @@ export default function HistoryPage() {
 
   const overall = summarize(answers);
   const streak = currentStreak(answers, todayKey);
+  // 「练习天数」按作答当天算，与 overall.daysCovered（被回忆的日子数）不是一回事
+  const practiceDays = useMemo(
+    () => new Set(answers.map((a) => a.answeredOn)).size,
+    [answers],
+  );
 
   const days: DayStat[] = useMemo(() => {
     return recentDateKeys(today, 30).map((date) => {
@@ -57,8 +62,8 @@ export default function HistoryPage() {
             <div className="stat-label">{s.totalAnswers}</div>
           </div>
           <div className="stat">
-            <div className="stat-value">{overall.daysCovered}</div>
-            <div className="stat-label">{s.daysCovered}</div>
+            <div className="stat-value">{practiceDays}</div>
+            <div className="stat-label">{s.practiceDays}</div>
           </div>
           <div className="stat">
             <div className="stat-value">{streak}</div>

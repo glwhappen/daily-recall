@@ -7,3 +7,4 @@ src/generated/
 .env.local
 .DS_Store
 coverage/
+tsconfig.tsbuildinfo
