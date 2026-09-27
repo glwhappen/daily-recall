@@ -2,8 +2,8 @@
 
 ## v1 收尾
 
-- [ ] 部署到 `memory_dev.hsfp.cn` 并验证（手机 + 桌面、亮暗色）
-- [ ] 验证通过后切 `memory.hsfp.cn`
+- [x] 部署到 `memory_dev.hsfp.cn` 并验证（手机 + 桌面、亮暗色）
+- [x] 验证通过后切 `memory.hsfp.cn`
 - [ ] 创建 GitHub 仓库并推送（用户确认后）
 
 ## v1.1
@@ -27,3 +27,6 @@
   当前只是提示「换一个范围」，更好的做法是降级复用或提示补题。
 - `today` 在页面打开时固定（`useMemo`），跨零点后不刷新，需要手动重开页面。
 - 英文 UI 文案已就绪，但题库仍是中文，`en` locale 会回退到中文题库。
+- PWA 只有 manifest，没有 service worker，因此断网打不开（可安装但无离线能力）。
+- 题库的 `offsets` 目前靠人工判断（见 `docs/question-guide.md` 第七节），
+  等积累真实数据后应该用实际「不记得率」反向校准。
