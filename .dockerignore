@@ -1,0 +1,17 @@
+# 构建产物与依赖都不该进镜像：node_modules 是宿主机的，
+# 复制进去会覆盖 npm ci 装在容器里的那份（架构/版本不一致时会直接坏掉）。
+node_modules
+.next
+out
+src/generated
+tsconfig.tsbuildinfo
+
+.git
+.github
+*.log
+.env
+.env.local
+coverage
+
+# 截图只在仓库里给 README 用
+docs/screenshots

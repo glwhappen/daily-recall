@@ -50,11 +50,20 @@ export function detectDrift(answers: Answer[]): DriftGroup[] {
     if (primary.length < 2) continue;
 
     const [questionId, targetDate] = key.split('|');
+    // 拿「问得最近」和「问得最远」的两次来比。
+    // 记忆表现只有在间隔单调拉远时才可比：隔一天后想起来是正常的回忆恢复，
+    // 不比「一周后还想得起来」更有信息量。按作答时间顺序比会把这个搞反。
+    const nearest = primary.reduce((a, b) => (b.offset < a.offset ? b : a));
+    const farthest = primary.reduce((a, b) => (b.offset > a.offset ? b : a));
+
+    const kind = classify(nearest, farthest);
+    if (kind === null) continue; // 没有信息量的比较不入列表
+
     out.push({
       questionId,
       targetDate,
       answers: sorted,
-      kind: classify(primary[0], primary[primary.length - 1]),
+      kind,
       resolved: sorted.some((a) => a.revisionOf),
     });
   }
@@ -64,12 +73,38 @@ export function detectDrift(answers: Answer[]): DriftGroup[] {
   return out.sort((a, b) => order[a.kind] - order[b.kind] || a.targetDate.localeCompare(b.targetDate));
 }
 
-function classify(first: Answer, last: Answer): DriftKind {
-  if (first.kind === 'forgot' && last.kind !== 'forgot') return 'upgrade';
-  if (first.kind !== 'forgot' && last.kind === 'forgot') return 'decay';
-  if (first.kind !== 'forgot' && last.kind !== 'forgot' && first.value !== last.value) {
-    return 'conflict';
+/**
+ * 判定「越久反而越清晰」所需的**距离差**。
+ *
+ * 看的是两次提问之间拉远了几天，而不是最远那次有多远：
+ * 「昨天」和「前天」问同一天只差一天，回忆有波动很正常，
+ * 把它当成「虚构」太武断，而且会拿一堆噪声去打扰用户。
+ * 要报给用户的判断，门槛就高一点。
+ */
+const MIN_OFFSET_GAP = 2;
+
+/**
+ * 比较两次作答。
+ *
+ * `near` 是问得最近的那次，`far` 是问得最远的那次（偏移更大）。
+ * 参数顺序不能换：换「忘了」和「记得」的方向就反了。
+ *
+ * 返回 `null` 表示这条比较没有信息量，不应该展示给用户。
+ */
+function classify(near: Answer, far: Answer): DriftKind | null {
+  if (near.id === far.id) return null;
+
+  // 事实矛盾优先：同一天只有一种事实，两个不同的值必有一错
+  const bothConcrete = near.kind !== 'forgot' && far.kind !== 'forgot';
+  if (bothConcrete && near.value !== far.value) return 'conflict';
+
+  // 问得更远之后还记得 → 可疑（通常是虚构或混淆），但距离得真拉开
+  if (near.kind === 'forgot' && far.kind !== 'forgot') {
+    return far.offset - near.offset >= MIN_OFFSET_GAP ? 'upgrade' : null;
   }
+  // 问得更远之后忘了 → 正常遗忘。
+  // 这里不再加距离门槛：遗忘曲线宁可宽一点，多收数据比少收好。
+  if (near.kind !== 'forgot' && far.kind === 'forgot') return 'decay';
   return 'agree';
 }
 

@@ -4,6 +4,12 @@
 
 **每天五道题，问的昨天。**
 
+<p align="center">
+  <img src="docs/screenshots/question.png" width="30%" alt="答题界面">
+  <img src="docs/screenshots/result.png" width="30%" alt="结果页与跨天校验">
+  <img src="docs/screenshots/review.png" width="30%" alt="核对互相矛盾的记忆">
+</p>
+
 多数记忆 App 让你背「你想记住的东西」的卡片。每日回忆问的是**昨天**——你吃了什么、有没有出门、和谁说过话——然后过几天，再问一遍同一天。
 
 第二次提问才是关键：

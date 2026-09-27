@@ -1,40 +1,14 @@
 'use client';
 
+import { DRIFT_CHIP_CLASS, DRIFT_ITEM_CLASS, driftDesc, driftTitle } from '@/components/driftMeta';
 import { bankFor, DEFAULT_LOCALE } from '@/lib/bank';
 import { renderWithDay } from '@/lib/date';
-import type { DriftGroup, DriftKind } from '@/lib/drift';
+import type { DriftGroup } from '@/lib/drift';
 import { format, strings } from '@/i18n/strings';
 
 const LOCALE = DEFAULT_LOCALE;
 const bank = bankFor(LOCALE);
 const s = strings(LOCALE);
-
-const KIND_CLASS: Record<DriftKind, string> = {
-  conflict: 'drift-item--conflict',
-  upgrade: 'drift-item--upgrade',
-  decay: 'drift-item--decay',
-  agree: 'drift-item--agree',
-};
-
-const CHIP_CLASS: Record<DriftKind, string> = {
-  conflict: 'chip chip--bad',
-  upgrade: 'chip chip--warn',
-  decay: 'chip',
-  agree: 'chip chip--good',
-};
-
-function titleOf(kind: DriftKind): string {
-  return { conflict: s.driftConflict, decay: s.driftDecay, upgrade: s.driftUpgrade, agree: s.driftAgree }[kind];
-}
-
-function descOf(kind: DriftKind): string {
-  return {
-    conflict: s.driftConflictDesc,
-    decay: s.driftDecayDesc,
-    upgrade: s.driftUpgradeDesc,
-    agree: s.driftAgreeDesc,
-  }[kind];
-}
 
 export function DriftList({ groups }: { groups: DriftGroup[] }) {
   if (groups.length === 0) {
@@ -53,12 +27,15 @@ export function DriftList({ groups }: { groups: DriftGroup[] }) {
         const last = group.answers[group.answers.length - 1];
 
         return (
-          <div key={`${group.questionId}|${group.targetDate}`} className={`drift-item ${KIND_CLASS[group.kind]}`}>
+          <div
+            key={`${group.questionId}|${group.targetDate}`}
+            className={`drift-item ${DRIFT_ITEM_CLASS[group.kind]}`}
+          >
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
               <span style={{ fontSize: 14, fontWeight: 600 }}>{text}</span>
-              <span className={CHIP_CLASS[group.kind]}>{titleOf(group.kind)}</span>
+              <span className={DRIFT_CHIP_CLASS[group.kind]}>{driftTitle(group.kind)}</span>
             </div>
-            <p className="tiny" style={{ margin: '6px 0 0' }}>{descOf(group.kind)}</p>
+            <p className="tiny" style={{ margin: '6px 0 0' }}>{driftDesc(group.kind)}</p>
             <div className="answer-line">
               <span className="tiny">{s.firstAnswer}</span>
               <b>{first.value}</b>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import { DRIFT_CHIP_CLASS, DRIFT_ITEM_CLASS, driftDesc, driftTitle } from '@/components/driftMeta';
 import { useStore } from '@/hooks/useStore';
 import { format, strings } from '@/i18n/strings';
 import { bankFor, DEFAULT_LOCALE } from '@/lib/bank';
@@ -54,8 +55,12 @@ export default function ReviewPage() {
     const handled = group.resolved || done.includes(key);
 
     return (
-      <div key={key} className="drift-item drift-item--conflict">
-        <div style={{ fontSize: 14, fontWeight: 600 }}>{text}</div>
+      <div key={key} className={`drift-item ${DRIFT_ITEM_CLASS[group.kind]}`}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+          <span style={{ fontSize: 14, fontWeight: 600 }}>{text}</span>
+          <span className={DRIFT_CHIP_CLASS[group.kind]}>{driftTitle(group.kind)}</span>
+        </div>
+        <p className="tiny" style={{ margin: '6px 0 0' }}>{driftDesc(group.kind)}</p>
         <div className="answer-line">
           <span className="tiny">{s.firstAnswer}</span>
           <b>{first.value}</b>

@@ -88,6 +88,48 @@ describe('跨天一致性检测', () => {
     expect(groups[0].answers).toHaveLength(3);
   });
 
+  it('用「问得最近」与「问得最远」的两次来比，而不是按作答时间取首末', () => {
+    // 人为乱序（导入或合并数据时可能出现）：偏移大的反而先答
+    const groups = detectDrift([
+      mk({ id: 'x1', value: '出门了', offset: 7, answeredAt: '2026-09-27T09:00:00Z' }),
+      mk({ id: 'x2', value: '没出门', offset: 2, answeredAt: '2026-09-22T09:00:00Z' }),
+    ]);
+    // 最近（offset 2）说没出门，最远（offset 7）说出门了 → 事实矛盾
+    expect(groups[0].kind).toBe('conflict');
+  });
+
+  it('间隔拉远后才忘，才算正常遗忘', () => {
+    const groups = detectDrift([
+      mk({ id: 'y1', value: '记得', kind: 'recalled', offset: 1, answeredAt: '2026-09-21T09:00:00Z' }),
+      mk({ id: 'y2', value: '想不起来', kind: 'forgot', offset: 2, answeredAt: '2026-09-22T09:00:00Z' }),
+    ]);
+    expect(groups[0].kind).toBe('decay');
+  });
+
+  it('偏移相同时无法比较，不入列表（记忆表现要有距离差才可比）', () => {
+    const groups = detectDrift([
+      mk({ id: 'z1', value: '想不起来', kind: 'forgot', offset: 1, answeredAt: '2026-09-21T09:00:00Z' }),
+      mk({ id: 'z2', value: '记得', kind: 'recalled', offset: 1, answeredAt: '2026-09-22T09:00:00Z' }),
+    ]);
+    expect(groups).toHaveLength(0);
+  });
+
+  it('只隔一天时想起来不算可疑（1–2 天之间回忆有波动很正常）', () => {
+    const groups = detectDrift([
+      mk({ id: 'w1', value: '想不起来', kind: 'forgot', offset: 1, answeredAt: '2026-09-21T09:00:00Z' }),
+      mk({ id: 'w2', value: '记得', kind: 'recalled', offset: 2, answeredAt: '2026-09-22T09:00:00Z' }),
+    ]);
+    expect(groups).toHaveLength(0);
+  });
+
+  it('距离拉开到 2 天以上时，想起来才算可疑', () => {
+    const groups = detectDrift([
+      mk({ id: 'v1', value: '想不起来', kind: 'forgot', offset: 1, answeredAt: '2026-09-21T09:00:00Z' }),
+      mk({ id: 'v2', value: '记得', kind: 'recalled', offset: 3, answeredAt: '2026-09-23T09:00:00Z' }),
+    ]);
+    expect(groups[0].kind).toBe('upgrade');
+  });
+
   it('openIssues 只挑出需要用户处理的：矛盾与「越久越清晰」', () => {
     const conflict = [
       mk({ value: '出门了', offset: 1, answeredAt: '2026-09-21T09:00:00Z' }),
@@ -104,8 +146,8 @@ describe('跨天一致性检测', () => {
     const groups = detectDrift([
       mk({ value: '出门了', offset: 1, answeredAt: '2026-09-21T09:00:00Z' }),
       mk({ value: '没出门', offset: 2, answeredAt: '2026-09-22T09:00:00Z' }),
-      mk({ id: 'c1', questionId: 'anchor-rain', value: '想不起来', kind: 'forgot', answeredAt: '2026-09-21T09:00:00Z' }),
-      mk({ id: 'c2', questionId: 'anchor-rain', value: '记得', kind: 'recalled', answeredAt: '2026-09-22T09:00:00Z' }),
+      mk({ id: 'c1', questionId: 'anchor-rain', value: '想不起来', kind: 'forgot', offset: 1, answeredAt: '2026-09-21T09:00:00Z' }),
+      mk({ id: 'c2', questionId: 'anchor-rain', value: '记得', kind: 'recalled', offset: 7, answeredAt: '2026-09-27T09:00:00Z' }),
     ]);
     expect(groups[0].kind).toBe('upgrade');
   });

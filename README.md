@@ -4,6 +4,12 @@
 
 **Five questions a day about your own life. See how much you actually remember.**
 
+<p align="center">
+  <img src="docs/screenshots/question.png" width="30%" alt="Answering a question">
+  <img src="docs/screenshots/result.png" width="30%" alt="Session result with a cross-day check">
+  <img src="docs/screenshots/review.png" width="30%" alt="Reconciling conflicting memories">
+</p>
+
 Most memory apps test you on flashcards of things you *want* to remember. Daily Recall asks
 about **yesterday** — what you ate, whether you went out, who you talked to — and then asks
 about the same day again a few days later.

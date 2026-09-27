@@ -8,6 +8,14 @@ export const metadata: Metadata = {
   applicationName: 'Daily Recall',
   manifest: '/manifest.webmanifest',
   appleWebApp: { capable: true, title: '每日回忆', statusBarStyle: 'default' },
+  // favicon.ico 由 app/favicon.ico 自动注入，这里只补 iOS 主屏图标
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+  },
 };
 
 export const viewport: Viewport = {
