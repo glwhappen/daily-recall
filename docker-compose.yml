@@ -1,0 +1,25 @@
+# Daily Recall 生产部署
+#   docker compose up -d --build
+#
+# 国内构建慢时带上加速参数：
+#   NODE_IMAGE=docker.m.daocloud.io/library/node:24-alpine \
+#   NPM_REGISTRY=https://registry.npmmirror.com \
+#   docker compose up -d --build
+services:
+  memory:
+    build:
+      context: .
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:24-alpine}
+        NPM_REGISTRY: ${NPM_REGISTRY:-}
+    image: daily-recall:latest
+    container_name: daily-recall
+    ports:
+      - "${APP_PORT:-4470}:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

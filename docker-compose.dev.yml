@@ -1,0 +1,14 @@
+# Daily Recall 预览/测试环境（独立端口，验证改动后再切生产）
+#   docker compose -f docker-compose.dev.yml up -d --build
+services:
+  memory-dev:
+    build:
+      context: .
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:24-alpine}
+        NPM_REGISTRY: ${NPM_REGISTRY:-}
+    image: daily-recall:dev
+    container_name: daily-recall-dev
+    ports:
+      - "${APP_PORT_DEV:-4471}:80"
+    restart: unless-stopped

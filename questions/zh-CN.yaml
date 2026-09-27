@@ -1,0 +1,641 @@
+# 每日回忆练习 — 中文题库
+#
+# 出题规范见 docs/question-guide.md，字段说明见 questions/schema.json。
+# 提交新题请只改本文件（或 questions/en.yaml 的对应翻译），并确保：
+#   1. id 全局唯一、使用 kebab-case、与语言无关（翻译时不改 id）
+#   2. 选项必须穷举且互斥，用户不需要打字
+#   3. fact 型题目必须包含一个 kind: forgot 的选项
+#   4. text 里的 {日期} 占位符会被渲染成「昨天」「前天」「一周前」等
+
+version: 1
+locale: zh-CN
+
+categories:
+  - id: food
+    name: 吃与喝
+    note: 高频、易验证的日常事实，适合做长期记录
+  - id: move
+    name: 出行与场所
+    note: 空间记忆，和「在哪」绑定的记忆最牢固
+  - id: people
+    name: 人际
+    note: 社会记忆，涉及对话与情绪，遗忘最快
+  - id: work
+    name: 工作与屏幕
+    note: 现代人一天的主要消耗，也是记忆最模糊的部分
+  - id: fun
+    name: 娱乐与手机
+    note: 内容消费的记忆，常出现「看过但讲不出」
+  - id: body
+    name: 生活起居与身体
+    note: 生理节律相关，用来对照睡眠与记忆的关系
+  - id: mood
+    name: 情绪与主观
+    note: 情绪记忆偏主观，可整类关闭
+  - id: anchor
+    name: 锚点与时间感
+    note: 不是考题，是「钩子」——用外部锚点把当天的记忆勾出来
+
+questions:
+  # ── 吃与喝 ──────────────────────────────────────────────
+  - id: food-breakfast-takeout
+    category: food
+    type: fact
+    text: "{日期}早上你点外卖了吗？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 点了, kind: fact }
+      - { value: 没点, kind: fact }
+      - { value: 没吃早饭, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: food-lunch-source
+    category: food
+    type: fact
+    text: "{日期}午饭你是怎么解决的？"
+    offsets: [1, 2, 3, 7, 14, 30]
+    options:
+      - { value: 外卖, kind: fact }
+      - { value: 自己做, kind: fact }
+      - { value: 出去吃, kind: fact }
+      - { value: 没吃, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: food-dinner-time
+    category: food
+    type: fact
+    text: "{日期}你晚饭是几点吃的？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 6点前, kind: fact }
+      - { value: 6到8点, kind: fact }
+      - { value: 8到10点, kind: fact }
+      - { value: 10点后, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: food-lunch-recall
+    category: food
+    type: recall
+    text: "你还记得{日期}午饭吃的是什么吗？"
+    offsets: [1, 2, 3, 7, 14, 30]
+    options:
+      - { value: 记得, kind: recalled }
+      - { value: 想不起来, kind: forgot }
+
+  - id: food-sugary-drink
+    category: food
+    type: fact
+    text: "{日期}你喝过含糖饮料吗？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 喝过, kind: fact }
+      - { value: 没喝, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: food-skipped-meal
+    category: food
+    type: fact
+    text: "{日期}你有没有忙到顾不上吃饭？"
+    offsets: [1, 2, 7, 14, 30]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: food-snack
+    category: food
+    type: fact
+    text: "{日期}你吃过零食吗？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 吃过, kind: fact }
+      - { value: 没吃, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: food-best-bite
+    category: food
+    type: recall
+    text: "{日期}那几顿饭里，最好吃的是哪一顿？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 记得, kind: recalled }
+      - { value: 想不起来, kind: forgot }
+
+  # ── 出行与场所 ──────────────────────────────────────────
+  - id: move-went-out
+    category: move
+    type: fact
+    text: "{日期}你出门了吗？"
+    offsets: [1, 2, 3, 7, 14, 30]
+    options:
+      - { value: 出门了, kind: fact }
+      - { value: 没出门, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: move-out-count
+    category: move
+    type: fact
+    text: "{日期}你出门了几次？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 1次, kind: fact }
+      - { value: 2到3次, kind: fact }
+      - { value: 更多, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: move-out-reason
+    category: move
+    type: fact
+    text: "{日期}你最后一次出门是为了什么？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 买东西, kind: fact }
+      - { value: 吃饭, kind: fact }
+      - { value: 见人, kind: fact }
+      - { value: 上班上学, kind: fact }
+      - { value: 散步透气, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: move-main-place
+    category: move
+    type: fact
+    text: "{日期}你大部分时间在哪里？"
+    offsets: [1, 2, 3, 7, 14, 30]
+    options:
+      - { value: 家里, kind: fact }
+      - { value: 公司或学校, kind: fact }
+      - { value: 在外面, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: move-transport
+    category: move
+    type: fact
+    text: "{日期}你坐过什么交通工具吗？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 地铁或公交, kind: fact }
+      - { value: 打车, kind: fact }
+      - { value: 自己开车, kind: fact }
+      - { value: 骑车或走路, kind: fact }
+      - { value: 没出门, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: move-convenience-store
+    category: move
+    type: fact
+    text: "{日期}你去过便利店或超市吗？"
+    offsets: [1, 2, 7, 14, 30]
+    options:
+      - { value: 去过, kind: fact }
+      - { value: 没去, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: move-got-lost
+    category: move
+    type: fact
+    text: "{日期}你有没有走错路或找错地方？"
+    offsets: [1, 2, 7, 14, 30]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  # ── 人际 ────────────────────────────────────────────────
+  - id: people-met-someone
+    category: people
+    type: fact
+    text: "{日期}你和人见面了吗？"
+    offsets: [1, 2, 3, 7, 14, 30]
+    options:
+      - { value: 见了, kind: fact }
+      - { value: 没见, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: people-main-company
+    category: people
+    type: fact
+    text: "{日期}你主要和谁待在一起？"
+    offsets: [1, 2, 3, 7, 14, 30]
+    options:
+      - { value: 家人, kind: fact }
+      - { value: 伴侣, kind: fact }
+      - { value: 朋友, kind: fact }
+      - { value: 同事或同学, kind: fact }
+      - { value: 一个人, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: people-sent-message
+    category: people
+    type: fact
+    text: "{日期}你给谁发过消息吗？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 发过, kind: fact }
+      - { value: 没发, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: people-voice-call
+    category: people
+    type: fact
+    text: "{日期}你打过电话或语音通话吗？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 打过, kind: fact }
+      - { value: 没打, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: people-best-conversation
+    category: people
+    type: recall
+    text: "你还记得{日期}印象最深的一次对话吗？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 记得, kind: recalled }
+      - { value: 想不起来, kind: forgot }
+
+  - id: people-stranger-talk
+    category: people
+    type: fact
+    text: "{日期}你和陌生人说过话吗？"
+    offsets: [1, 2, 7, 14, 30]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: people-conflict
+    category: people
+    type: fact
+    text: "{日期}你有没有和人闹得不愉快？"
+    offsets: [1, 2, 7, 14, 30]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  # ── 工作与屏幕 ──────────────────────────────────────────
+  - id: work-screen-hours
+    category: work
+    type: fact
+    text: "{日期}你在屏幕前大概待了多久？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 不到2小时, kind: fact }
+      - { value: 2到6小时, kind: fact }
+      - { value: 6到10小时, kind: fact }
+      - { value: 10小时以上, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: work-first-action
+    category: work
+    type: fact
+    text: "{日期}你打开电脑或手机后第一件事是做什么？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 看消息, kind: fact }
+      - { value: 看视频, kind: fact }
+      - { value: 开始工作, kind: fact }
+      - { value: 打游戏, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: work-did-real-work
+    category: work
+    type: fact
+    text: "{日期}你处理过正经工作或学习任务吗？"
+    offsets: [1, 2, 3, 7, 14, 30]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: work-worst-annoyance
+    category: work
+    type: recall
+    text: "{日期}最让你烦的一件事是什么，还记得吗？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 记得, kind: recalled }
+      - { value: 想不起来, kind: forgot }
+
+  - id: work-learned-something
+    category: work
+    type: fact
+    text: "{日期}你学到或弄懂了什么新东西吗？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: work-procrastinated-task
+    category: work
+    type: fact
+    text: "你拖了很久的那件事，{日期}推进了吗？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 推进了, kind: fact }
+      - { value: 还是没动, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: work-task-switches
+    category: work
+    type: fact
+    text: "{日期}你来回切换了几件事？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 1件, kind: fact }
+      - { value: 2到3件, kind: fact }
+      - { value: 更多, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: work-technical-frustration
+    category: work
+    type: fact
+    text: "{日期}你有没有因为设备或网络出问题而烦躁？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  # ── 娱乐与手机 ──────────────────────────────────────────
+  - id: fun-played-game
+    category: fun
+    type: fact
+    text: "{日期}你玩过游戏吗？"
+    offsets: [1, 2, 3, 7, 14, 30]
+    options:
+      - { value: 玩了, kind: fact }
+      - { value: 没玩, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: fun-watched-video
+    category: fun
+    type: fact
+    text: "{日期}你看过视频或剧吗？"
+    offsets: [1, 2, 3, 7, 14, 30]
+    options:
+      - { value: 看了, kind: fact }
+      - { value: 没看, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: fun-video-content-recall
+    category: fun
+    type: recall
+    text: "你还记得{日期}看的内容讲了什么吗？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 记得, kind: recalled }
+      - { value: 想不起来, kind: forgot }
+
+  - id: fun-longest-scroll
+    category: fun
+    type: fact
+    text: "{日期}你最长一次刷手机刷了多久？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 不到15分钟, kind: fact }
+      - { value: 15到60分钟, kind: fact }
+      - { value: 1到3小时, kind: fact }
+      - { value: 更久, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: fun-music-podcast
+    category: fun
+    type: fact
+    text: "{日期}你听过音乐或播客吗？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 听过, kind: fact }
+      - { value: 没听, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: fun-best-content
+    category: fun
+    type: recall
+    text: "{日期}你刷到的最有意思的一条内容是什么，还记得吗？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 记得, kind: recalled }
+      - { value: 想不起来, kind: forgot }
+
+  - id: fun-read-something
+    category: fun
+    type: fact
+    text: "{日期}你读过书或长文章吗？"
+    offsets: [1, 2, 7, 14, 30]
+    options:
+      - { value: 读过, kind: fact }
+      - { value: 没读, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  # ── 生活起居与身体 ──────────────────────────────────────
+  - id: body-bedtime
+    category: body
+    type: fact
+    text: "{日期}你几点睡的？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 11点前, kind: fact }
+      - { value: 11点到1点, kind: fact }
+      - { value: 1点到3点, kind: fact }
+      - { value: 3点后, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: body-sleep-quality
+    category: body
+    type: fact
+    text: "{日期}你睡得好吗？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 好, kind: fact }
+      - { value: 一般, kind: fact }
+      - { value: 差, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: body-showered-changed
+    category: body
+    type: fact
+    text: "{日期}你洗过澡或换过衣服吗？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: body-housework
+    category: body
+    type: fact
+    text: "{日期}你做过家务吗？"
+    offsets: [1, 2, 7, 14, 30]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: body-all-nighter
+    category: body
+    type: fact
+    text: "{日期}你有没有熬到天亮才睡？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: body-unwell
+    category: body
+    type: fact
+    text: "{日期}你身体有哪里不舒服吗？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: body-moved-around
+    category: body
+    type: fact
+    text: "{日期}你活动过身体吗（走路也算）？"
+    offsets: [1, 2, 7, 14, 30]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  # ── 情绪与主观 ──────────────────────────────────────────
+  - id: mood-overall
+    category: mood
+    type: fact
+    text: "{日期}你整体心情怎么样？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 好, kind: fact }
+      - { value: 一般, kind: fact }
+      - { value: 差, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: mood-laughed
+    category: mood
+    type: fact
+    text: "{日期}你有没有笑出声过？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: mood-anxious
+    category: mood
+    type: fact
+    text: "{日期}你有没有特别着急或焦虑的时候？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: mood-time-felt
+    category: mood
+    type: fact
+    text: "{日期}你觉得那天过得快还是慢？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 很快, kind: fact }
+      - { value: 正常, kind: fact }
+      - { value: 很慢, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: mood-achievement
+    category: mood
+    type: recall
+    text: "{日期}最有成就感的一件事，还记得吗？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 记得, kind: recalled }
+      - { value: 想不起来, kind: forgot }
+
+  - id: mood-small-joy
+    category: mood
+    type: fact
+    text: "{日期}有没有一件小事让你高兴了半天？"
+    offsets: [1, 2, 7, 14]
+    options:
+      - { value: 有, kind: fact }
+      - { value: 没有, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  # ── 锚点与时间感 ────────────────────────────────────────
+  - id: anchor-rain
+    category: anchor
+    type: fact
+    text: "{日期}下雨了吗？"
+    offsets: [1, 2, 3, 7, 14]
+    options:
+      - { value: 下了, kind: fact }
+      - { value: 没下, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: anchor-weather
+    category: anchor
+    type: fact
+    text: "{日期}天气大概是什么样的？"
+    offsets: [1, 2, 3, 7, 14]
+    options:
+      - { value: 晴, kind: fact }
+      - { value: 阴, kind: fact }
+      - { value: 雨, kind: fact }
+      - { value: 记不清, kind: forgot }
+
+  - id: anchor-top-color
+    category: anchor
+    type: fact
+    text: "{日期}你穿的上衣是什么颜色？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 深色, kind: fact }
+      - { value: 浅色, kind: fact }
+      - { value: 彩色, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: anchor-fuller-meal
+    category: anchor
+    type: fact
+    text: "{日期}午饭和晚饭，哪顿吃得更饱？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 午饭, kind: fact }
+      - { value: 晚饭, kind: fact }
+      - { value: 差不多, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: anchor-out-before-meal
+    category: anchor
+    type: fact
+    text: "{日期}你出门是在吃饭前还是吃饭后？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 饭前, kind: fact }
+      - { value: 饭后, kind: fact }
+      - { value: 没出门, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: anchor-spent-money
+    category: anchor
+    type: fact
+    text: "{日期}你花钱了吗？"
+    offsets: [1, 2, 3, 7, 14, 30]
+    options:
+      - { value: 花了, kind: fact }
+      - { value: 没花, kind: fact }
+      - { value: 不记得, kind: forgot }
+
+  - id: anchor-lights-on
+    category: anchor
+    type: fact
+    text: "{日期}晚上你房间的灯开着吗？"
+    offsets: [1, 2, 7]
+    options:
+      - { value: 开着, kind: fact }
+      - { value: 没开, kind: fact }
+      - { value: 不记得, kind: forgot }

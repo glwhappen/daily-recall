@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+src/generated/
+*.log
+.env
+.env.local
+.DS_Store
+coverage/

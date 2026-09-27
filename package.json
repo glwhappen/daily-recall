@@ -1,0 +1,33 @@
+{
+  "name": "daily-recall",
+  "private": true,
+  "version": "0.1.0",
+  "description": "每天几道关于昨天的题，用跨天答案的差异观察记忆漂移。本地优先，零后端。",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "questions:build": "node scripts/build-questions.mjs",
+    "predev": "npm run questions:build",
+    "dev": "next dev",
+    "prebuild": "npm run questions:build",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "pretest": "npm run questions:build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "next": "^15.4.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^24.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.10"
+  }
+}
