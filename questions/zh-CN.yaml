@@ -278,7 +278,8 @@ questions:
     category: work
     type: fact
     text: "{日期}你在屏幕前大概待了多久？"
-    offsets: [1, 2, 7, 14]
+    # 估计型记忆衰减极快，14 天前问「屏幕前多久」只会得到一连串「不记得」
+    offsets: [1, 2, 7]
     options:
       - { value: 不到2小时, kind: fact }
       - { value: 2到6小时, kind: fact }
@@ -290,7 +291,7 @@ questions:
     category: work
     type: fact
     text: "{日期}你打开电脑或手机后第一件事是做什么？"
-    offsets: [1, 2, 7, 14]
+    offsets: [1, 2, 7]
     options:
       - { value: 看消息, kind: fact }
       - { value: 看视频, kind: fact }
@@ -341,7 +342,7 @@ questions:
     category: work
     type: fact
     text: "{日期}你来回切换了几件事？"
-    offsets: [1, 2, 7]
+    offsets: [1, 2]
     options:
       - { value: 1件, kind: fact }
       - { value: 2到3件, kind: fact }
@@ -392,7 +393,7 @@ questions:
     category: fun
     type: fact
     text: "{日期}你最长一次刷手机刷了多久？"
-    offsets: [1, 2, 7]
+    offsets: [1, 2]
     options:
       - { value: 不到15分钟, kind: fact }
       - { value: 15到60分钟, kind: fact }
@@ -539,7 +540,7 @@ questions:
     category: mood
     type: fact
     text: "{日期}你觉得那天过得快还是慢？"
-    offsets: [1, 2, 7]
+    offsets: [1, 2]
     options:
       - { value: 很快, kind: fact }
       - { value: 正常, kind: fact }
@@ -591,7 +592,7 @@ questions:
     category: anchor
     type: fact
     text: "{日期}你穿的上衣是什么颜色？"
-    offsets: [1, 2, 7]
+    offsets: [1, 2]
     options:
       - { value: 深色, kind: fact }
       - { value: 浅色, kind: fact }
