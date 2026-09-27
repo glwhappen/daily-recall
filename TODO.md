@@ -4,13 +4,13 @@
 
 - [x] 部署到 `memory_dev.hsfp.cn` 并验证（手机 + 桌面、亮暗色）
 - [x] 验证通过后切 `memory.hsfp.cn`
-- [ ] 创建 GitHub 仓库并推送（用户确认后）
+- [x] 创建 GitHub 仓库并推送：https://github.com/glwhappen/daily-recall（public，MIT）
 
 ## v1.1
 
 - [ ] 英语题库 `questions/en.yaml`（翻译 57 道题，ID 保持不变）
 - [ ] 题库 JSON Schema 文件 `questions/schema.json`，给编辑器补全用
-- [ ] GitHub Actions CI：`npm test` + `typecheck` + `build`
+- [ ] GitHub Actions CI：`npm test` + `typecheck` + `build`（配置文件已就位，待验证首次运行）
 - [ ] 真正离线可用（service worker 预缓存），当前只有 manifest 可安装
 - [ ] 结果页展示「本次涉及目标日期的遗忘曲线」小图
 
