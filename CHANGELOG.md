@@ -2,7 +2,32 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 与[语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## [Unreleased]（2.0.0）
+
+### Added
+
+- **可选的服务端**：配 `DATABASE_URL` 才启用；不配就退化成纯本地模式，行为和 1.x 一样。
+- **账号**：标准 OIDC 授权码 + PKCE（不绑定厂商，Authentik/Keycloak/Auth0/Google 均可），
+  外加可选的自建邮箱密码。id_token 用 Node 内置 crypto 验签，不引认证框架。
+- **云端同步**：`POST /api/sync` 与服务端用同一个 `mergeAnswers`——记录不可变且带 UUID，
+  合并只是集合并集，不需要处理字段冲突。客户端把本地全量丢过来即可，重复上传是安全的。
+- **题目反馈**：答题时一人一题一票（👍/👎）。点踩会把该题加入**个人**屏蔽名单，
+  当场跳过且以后不再出现；不影响别人的题库。
+- **题目管理后台**：按点踩率排序看统计，可下线/恢复题目。
+  下线记在数据库而非 YAML（那是 Git 管理的唯一事实源、容器里也只读），
+  后台另给「同步回仓库」清单。
+- 三个独立开关：`AUTH_ENABLED`、`FEEDBACK_ENABLED`、`AUTH_PASSWORD_ENABLED`。
+- 管理员按 `ADMIN_EMAILS`（邮箱白名单）或 `ADMIN_GROUPS`（OIDC 组）判定。
+- 本地存储升到 v2（新增 votes / blocked），v1 数据自动读上来，不需要迁移脚本。
+
+### Changed
+
+- Docker 镜像从 nginx 静态站改为 Node 运行时，compose 里带上 PostgreSQL。
+- 不再使用 `output: 'export'`。想要纯静态托管请用 `v1.0.0` tag。
+
+## [1.0.0] - 2026-09-28
+
+第一个可用版本：纯静态、零后端、数据只在浏览器里。
 
 ### Added
 

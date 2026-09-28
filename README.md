@@ -63,8 +63,46 @@ Cloudflare Pages, Netlify, or a plain nginx. No server-side code, no database.
 npm run questions:build   # compile questions/*.yaml → src/generated/questions.json
 npm test                  # unit tests + question bank validation
 npm run typecheck
-npm run build             # static export into out/
+npm run build
 ```
+
+## Three ways to run it
+
+Same codebase, configured into one of three shapes. **Leaving everything blank works** —
+that's the local-only mode described above.
+
+| Mode | How to enable | What you get |
+|---|---|---|
+| Local only | default | Everything in the browser. No account, no database |
+| Local + account | set `DATABASE_URL` | Email/password or OIDC sign-in, sync, question feedback |
+| Partial | `AUTH_ENABLED=false` etc. | e.g. feedback without accounts, or the reverse |
+
+```bash
+cp .env.example .env    # optional: every value can stay empty
+docker compose up -d --build
+```
+
+### Bring your own identity provider
+
+Any standard OIDC provider works (Authentik, Keycloak, Auth0, Google) — three variables:
+
+```bash
+PUBLIC_URL=https://memory.example.com
+OIDC_ISSUER=https://auth.example.com/application/o/memory/
+OIDC_CLIENT_ID=xxxxxxxx
+OIDC_CLIENT_SECRET=xxxxxxxx
+```
+
+Register `https://memory.example.com/api/auth/oidc/callback` as the redirect URI.
+If your provider manages permissions through groups, put the admin group name in
+`ADMIN_GROUPS` and those users get the question-management page.
+
+### Where the data lives
+
+The browser is always the first copy: offline, logged out, or database down — you keep
+answering. The database is a second copy. Syncing is just a set union, because answers are
+immutable and carry UUIDs, so there is no field-level conflict to resolve. With no database
+configured, none of that machinery runs and behaviour is exactly the original version.
 
 ## How it works
 
@@ -108,8 +146,9 @@ English question bank (`questions/en.yaml`) is very welcome — see
 
 ## Status
 
-v1 targets the local-first, no-account experience. Optional sync (so you can carry your
-history between devices) is planned but deliberately not required. See [TODO.md](TODO.md).
+v2 adds an optional server: accounts, cloud sync, and question feedback. All three are behind
+config flags, and with them off you get the original local-first experience. For pure static
+hosting (GitHub Pages etc.), use the `v1.0.0` tag.
 
 ## License
 

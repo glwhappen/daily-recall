@@ -51,8 +51,56 @@ docker compose up -d --build     # http://localhost:4470
 npm run questions:build   # 把 questions/*.yaml 编译成 src/generated/questions.json
 npm test                  # 单元测试 + 题库校验
 npm run typecheck
-npm run build             # 静态导出到 out/
+npm run build             # 构建（服务端模式）
 ```
+
+## 三种运行模式
+
+同一份代码，靠配置决定跑到哪一档。**什么都不配也能用**：
+
+| 模式 | 怎么开 | 得到什么 |
+|---|---|---|
+| 纯本地 | 默认 | 数据只在自己浏览器里，不要账号、不要数据库 |
+| 本地 + 账号 | 配 `DATABASE_URL` | 邮箱密码或 OIDC 登录、云端同步、题目反馈 |
+| 只要其中一部分 | `AUTH_ENABLED=false` 等 | 例如只要反馈不要账号，或反之 |
+
+```bash
+cp .env.example .env    # 按需填，全留空也能跑
+docker compose up -d --build
+```
+
+### 环境变量
+
+| 变量 | 作用 |
+|---|---|
+| `DATABASE_URL` | 配了才启用服务端；不配就是纯本地模式 |
+| `AUTH_ENABLED` | 是否允许注册登录（默认跟随服务端） |
+| `FEEDBACK_ENABLED` | 是否接受题目反馈（默认跟随服务端） |
+| `PUBLIC_URL` | 站点公网地址，OIDC 回调地址靠它拼，必须与 provider 登记的一致 |
+| `ADMIN_EMAILS` / `ADMIN_GROUPS` | 谁能进题目管理后台 |
+| `OIDC_ISSUER` / `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET` | 可选的统一登录 |
+| `AUTH_PASSWORD_ENABLED` | 是否保留邮箱密码注册（关掉则只走 OIDC） |
+
+### 接自己的统一登录（OIDC）
+
+不绑定任何厂商，Authentik / Keycloak / Auth0 / Google 都一样，填三个变量即可：
+
+```bash
+PUBLIC_URL=https://memory.example.com
+OIDC_ISSUER=https://auth.example.com/application/o/memory/
+OIDC_CLIENT_ID=xxxxxxxx
+OIDC_CLIENT_SECRET=xxxxxxxx
+```
+
+在 provider 里把回调地址登记为 `https://memory.example.com/api/auth/oidc/callback`。
+如果 provider 用组来管理权限，把管理员组名写进 `ADMIN_GROUPS` 就能直接用后台。
+
+### 数据放在哪
+
+- **浏览器**：永远是第一份数据。断网、没登录、数据库挂掉，都不影响继续答题。
+- **数据库**：登录后的另一个副本。同步就是把两边合一下——作答记录不可变且带 UUID，
+  所以合并只是集合并集，不需要处理冲突。
+- 没配数据库时，上面那条链路完全不参与，行为和最初版本一模一样。
 
 ## 代码结构
 
@@ -87,7 +135,8 @@ UI 文案表已支持 `zh-CN` 与 `en`，题库格式本身也是按 locale 组�
 
 ## 当前状态
 
-v1 只做「本地优先、不要账号」这条路。可选的同步（跨设备带历史）在计划里，但刻意不做成必需。见 [TODO.md](TODO.md)。
+v2 加了可选的服务端：账号、云端同步、题目反馈。三者都由配置开关控制，
+默认关掉就回到 v1 的纯本地体验。想要纯静态托管（GitHub Pages 等）请用 `v1.0.0` tag。
 
 ## 许可
 
