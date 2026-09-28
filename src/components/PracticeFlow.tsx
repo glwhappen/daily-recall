@@ -29,6 +29,8 @@ interface SessionState {
   items: QuestionInstance[];
   records: Answer[];
   index: number;
+  /** 本次练习的目标题数。点踩跳过的题会补上新的，保证答满这个数 */
+  target: number;
 }
 
 type View = 'home' | 'practice' | 'result';
@@ -82,22 +84,66 @@ export function PracticeFlow() {
         })),
         records: [],
         index: 0,
+        target: count,
       });
       setView('practice');
     },
     [answers, blocked, capabilities.disabledQuestions],
   );
 
-  /** 跳过当前题（点踩后不再要求作答） */
-  const skipInstance = useCallback(() => {
-    if (!session) return;
-    const isLast = session.index + 1 >= session.items.length;
-    if (!isLast) {
-      setSession((prev) => (prev ? { ...prev, index: prev.index + 1 } : prev));
-    } else {
-      setView('result');
-    }
-  }, [session]);
+  /**
+   * 临场再抽一道题，用于点踩后的补位。
+   * 排除集合显式传入而不依赖 blocked 的 state：点踩与抽题几乎同时发生，
+   * 等 state 更新完再抽会抽回同一道题。
+   */
+  const pickExtra = useCallback(
+    (excludeQuestionIds: Set<string>): QuestionInstance | null => {
+      const excluded = new Set([
+        ...capabilities.disabledQuestions,
+        ...blocked,
+        ...excludeQuestionIds,
+      ]);
+      const candidates = buildCandidates(bank, new Date(), answers).filter(
+        (c) => !excluded.has(c.question.id),
+      );
+      const [picked] = pickSession(candidates, 1, { rng: Math.random, minAnchor: 0 });
+      if (!picked) return null;
+      return {
+        questionId: picked.question.id,
+        targetDate: picked.targetDate,
+        offset: picked.offset,
+        text: renderText(picked.question.text, picked.offset, LOCALE),
+      };
+    },
+    [answers, blocked, capabilities.disabledQuestions],
+  );
+
+  /** 点踩后跳过当前题，并补一道新题——用户选了几道就还是答几道 */
+  const skipInstance = useCallback(
+    (skippedQuestionId: string) => {
+      if (!session) return;
+
+      const used = new Set(session.items.map((i) => i.questionId));
+      used.add(skippedQuestionId);
+      const extra = pickExtra(used);
+
+      const nextIndex = session.index + 1;
+      setSession((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          items: extra ? [...prev.items, extra] : prev.items,
+          index: nextIndex,
+        };
+      });
+
+      // 原题库就用完了、补不上题时才真的结束
+      if (nextIndex >= session.items.length && !extra) {
+        setView('result');
+      }
+    },
+    [pickExtra, session],
+  );
 
   const choose = useCallback(
     (instance: QuestionInstance, value: string, kind: OptionKind) => {
@@ -138,7 +184,8 @@ export function PracticeFlow() {
       return null;
     }
     const question = bank.questions.find((q) => q.id === instance.questionId);
-    const progress = (session.index / session.items.length) * 100;
+    // 进度按「真正答完的题数 / 目标题数」算：点踩不推进进度，补上的题会继续推进
+    const progress = (session.records.length / Math.max(1, session.target)) * 100;
 
     return (
       <div className="shell shell--center">
@@ -146,7 +193,7 @@ export function PracticeFlow() {
           <div className="progress-fill" style={{ width: `${progress}%` }} />
         </div>
         <p className="tiny" style={{ marginBottom: 10 }}>
-          {format(s.questionOf, { n: session.index + 1, total: session.items.length })}
+          {format(s.questionOf, { n: session.records.length + 1, total: session.target })}
         </p>
         <h1 className="question-text">{instance.text}</h1>
         <div className="options">
@@ -190,9 +237,10 @@ export function PracticeFlow() {
               aria-label="别再问我这个"
               title="别再问我这个"
               onClick={() => {
-                // 点踩表达的是「我不想答这个」：屏蔽掉并跳过去，不再要求作答
+                // 点踩表达的是「我不想答这个」：屏蔽掉并跳过去，
+                // 同时补一道新题，保证本次练习的题数不变
                 void setVote(instance.questionId, 'down');
-                skipInstance();
+                skipInstance(instance.questionId);
               }}
             >
               👎

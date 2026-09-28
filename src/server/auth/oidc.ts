@@ -1,4 +1,11 @@
-import { createHash, createPublicKey, randomBytes, verify as cryptoVerify } from 'node:crypto';
+import {
+  createHash,
+  createHmac,
+  createPublicKey,
+  randomBytes,
+  timingSafeEqual,
+  verify as cryptoVerify,
+} from 'node:crypto';
 
 /**
  * 标准 OIDC 授权码流程 + PKCE。
@@ -230,6 +237,35 @@ async function verifyIdToken(idToken: string, d: Discovery): Promise<Record<stri
     throw new Error('id_token 已过期');
   }
 
+  await verifySignature(header, `${headerPart}.${payloadPart}`, signaturePart, d);
+
+  return payload;
+}
+
+async function verifySignature(
+  header: { alg?: string; kid?: string },
+  signingInput: string,
+  signaturePart: string,
+  d: Discovery,
+): Promise<void> {
+  const signature = Buffer.from(signaturePart, 'base64url');
+
+  // HS256：用 client_secret 做 HMAC。
+  // 不是首选（共享密钥），但不少 provider 在没配签名证书时就这么干——
+  // Authentik 就是其中之一。不支持的后果是「登录永远失败」，所以必须兜住。
+  if (header.alg === 'HS256' || header.alg === 'HS384' || header.alg === 'HS512') {
+    const secret = process.env.OIDC_CLIENT_SECRET;
+    if (!secret) {
+      throw new Error(`id_token 用 ${header.alg} 签名，但没有配置 OIDC_CLIENT_SECRET`);
+    }
+    const digest = { HS256: 'sha256', HS384: 'sha384', HS512: 'sha512' }[header.alg];
+    const expected = createHmac(digest, secret).update(signingInput).digest();
+    if (expected.length !== signature.length || !timingSafeEqual(expected, signature)) {
+      throw new Error('id_token 签名校验失败');
+    }
+    return;
+  }
+
   const algorithm = header.alg ? ALGORITHMS[header.alg] : undefined;
   if (!algorithm) throw new Error(`不支持的签名算法：${String(header.alg)}`);
 
@@ -239,13 +275,6 @@ async function verifyIdToken(idToken: string, d: Discovery): Promise<Record<stri
   if (!jwk) throw new Error('JWKS 里找不到匹配的密钥');
 
   const publicKey = createPublicKey({ key: jwk as never, format: 'jwk' });
-  const valid = cryptoVerify(
-    algorithm,
-    Buffer.from(`${headerPart}.${payloadPart}`),
-    publicKey,
-    Buffer.from(signaturePart, 'base64url'),
-  );
+  const valid = cryptoVerify(algorithm, Buffer.from(signingInput), publicKey, signature);
   if (!valid) throw new Error('id_token 签名校验失败');
-
-  return payload;
 }
