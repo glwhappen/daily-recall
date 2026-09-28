@@ -10,7 +10,7 @@ services:
     image: daily-recall:dev
     container_name: daily-recall-dev
     environment:
-      DATABASE_URL: postgres://recall:${POSTGRES_PASSWORD:-recall}@db-dev:5432/recall
+      DATABASE_URL: postgres://recall:${POSTGRES_PASSWORD_DEV:-recall}@db-dev:5432/recall
       AUTH_ENABLED: ${AUTH_ENABLED:-true}
       FEEDBACK_ENABLED: ${FEEDBACK_ENABLED:-true}
       PUBLIC_URL: ${PUBLIC_URL_DEV:-}
@@ -33,7 +33,7 @@ services:
     container_name: daily-recall-db-dev
     environment:
       POSTGRES_USER: recall
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-recall}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_DEV:-recall}
       POSTGRES_DB: recall
     volumes:
       - ./data/postgres-dev:/var/lib/postgresql/data
