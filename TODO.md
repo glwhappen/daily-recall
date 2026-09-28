@@ -1,5 +1,20 @@
 # TODO
 
+## v2 服务端（进行中）
+
+- [x] 服务端骨架 + PostgreSQL + 启动时自动迁移
+- [x] 认证：标准 OIDC（授权码 + PKCE，自带验签）+ 可选邮箱密码
+- [x] 云端同步（服务端与客户端复用同一个 `mergeAnswers`）
+- [x] 题目反馈：一人一题一票，点踩即个人屏蔽
+- [x] 题目管理后台：按点踩率排序、下线/恢复、导出同步清单
+- [ ] 部署到 `memory_dev.hsfp.cn` 并验证
+- [ ] 接 `auth.hsfp.cn` 的 OIDC（在 Authentik 建 Provider + Application）
+- [ ] 验证后部署生产
+- [ ] 注册/登录接口限流（目前只靠 scrypt 本身慢，防不住分布式爆破）
+- [ ] 邮箱验证与找回密码（目前注册后立即可用）
+- [ ] 增量同步（现在每次全量上传，一年记录约 2000 条）
+- [ ] 反馈汇总导出 / 可选自动开 GitHub issue（需 `GITHUB_TOKEN`）
+
 ## v1 收尾
 
 - [x] 部署到 `memory_dev.hsfp.cn` 并验证（手机 + 桌面、亮暗色）
