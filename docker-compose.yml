@@ -5,6 +5,9 @@
 #   NODE_IMAGE=docker.m.daocloud.io/library/node:24-alpine \
 #   NPM_REGISTRY=https://registry.npmmirror.com \
 #   docker compose up -d --build
+#
+# 不配任何环境变量也能跑：此时退化成纯本地模式（数据在浏览器里，没有账号）。
+# 想要账号与云端同步，把下面 DATABASE_URL 相关的部分保留即可（已默认开启）。
 services:
   memory:
     build:
@@ -14,12 +17,53 @@ services:
         NPM_REGISTRY: ${NPM_REGISTRY:-}
     image: daily-recall:latest
     container_name: daily-recall
+    environment:
+      # ── 服务端与数据库 ──
+      DATABASE_URL: postgres://recall:${POSTGRES_PASSWORD:-recall}@db:5432/recall
+      # 三个开关：关掉就退回纯本地模式，不必删掉数据库
+      AUTH_ENABLED: ${AUTH_ENABLED:-true}
+      FEEDBACK_ENABLED: ${FEEDBACK_ENABLED:-true}
+      # 站点公网地址，OIDC 回调地址靠它拼，必须和 provider 里登记的一致
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      # 管理员：邮箱白名单，或 OIDC 里的组名（逗号分隔）
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      ADMIN_GROUPS: ${ADMIN_GROUPS:-}
+      # ── 可选的 OIDC 单点登录（不配就没有这个按钮）──
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      OIDC_NAME: ${OIDC_NAME:-}
+      OIDC_SCOPES: ${OIDC_SCOPES:-openid profile email}
+      # 是否保留邮箱密码注册（默认开）
+      AUTH_PASSWORD_ENABLED: ${AUTH_PASSWORD_ENABLED:-true}
     ports:
-      - "${APP_PORT:-4470}:80"
+      - "${APP_PORT:-4470}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/api/config"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 20s
+
+  db:
+    image: postgres:17-alpine
+    container_name: daily-recall-db
+    environment:
+      POSTGRES_USER: recall
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-recall}
+      POSTGRES_DB: recall
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    # 只监听本机，方便备份与排查；容器之间走 docker 网络，不需要对外暴露
+    ports:
+      - "127.0.0.1:${DB_PORT:-4472}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U recall -d recall"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped

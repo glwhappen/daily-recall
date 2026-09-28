@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
+import { useApp } from '@/components/AppProvider';
 import { DriftList } from '@/components/DriftList';
 import { useStore } from '@/hooks/useStore';
 import { format, strings } from '@/i18n/strings';
@@ -34,6 +35,7 @@ type View = 'home' | 'practice' | 'result';
 
 export function PracticeFlow() {
   const { answers, ready, addAnswer } = useStore();
+  const { capabilities, user, blocked, votes, setVote, logout, syncState, isAdmin } = useApp();
   const [view, setView] = useState<View>('home');
   const [size, setSize] = useState(5);
   const [scope, setScope] = useState<Scope>('default');
@@ -55,8 +57,16 @@ export function PracticeFlow() {
 
   const startSession = useCallback(
     (count: number, range: Scope, excludeIds: Set<string> = new Set()) => {
-      const candidates = buildCandidates(bank, new Date(), answers);
-      const picked = pickForScope(candidates, count, range, excludeIds);
+      // 被管理员下线的题、以及我自己点踩屏蔽的题，都不再出现
+      const excluded = new Set([
+        ...capabilities.disabledQuestions,
+        ...blocked,
+        ...excludeIds,
+      ]);
+      const candidates = buildCandidates(bank, new Date(), answers).filter(
+        (c) => !excluded.has(c.question.id),
+      );
+      const picked = pickForScope(candidates, count, range, new Set());
       if (picked.length === 0) {
         setNotice('这个范围里的题都问过了，换一个范围试试。');
         return;
@@ -75,8 +85,19 @@ export function PracticeFlow() {
       });
       setView('practice');
     },
-    [answers],
+    [answers, blocked, capabilities.disabledQuestions],
   );
+
+  /** 跳过当前题（点踩后不再要求作答） */
+  const skipInstance = useCallback(() => {
+    if (!session) return;
+    const isLast = session.index + 1 >= session.items.length;
+    if (!isLast) {
+      setSession((prev) => (prev ? { ...prev, index: prev.index + 1 } : prev));
+    } else {
+      setView('result');
+    }
+  }, [session]);
 
   const choose = useCallback(
     (instance: QuestionInstance, value: string, kind: OptionKind) => {
@@ -146,6 +167,39 @@ export function PracticeFlow() {
             </button>
           ))}
         </div>
+
+        {capabilities.feedback && (
+          <div className="vote-row">
+            <button
+              type="button"
+              className={`vote${votes[instance.questionId] === 'up' ? ' vote--on' : ''}`}
+              aria-label="这题不错"
+              title="这题不错"
+              onClick={() =>
+                void setVote(
+                  instance.questionId,
+                  votes[instance.questionId] === 'up' ? null : 'up',
+                )
+              }
+            >
+              👍
+            </button>
+            <button
+              type="button"
+              className={`vote${votes[instance.questionId] === 'down' ? ' vote--on' : ''}`}
+              aria-label="别再问我这个"
+              title="别再问我这个"
+              onClick={() => {
+                // 点踩表达的是「我不想答这个」：屏蔽掉并跳过去，不再要求作答
+                void setVote(instance.questionId, 'down');
+                skipInstance();
+              }}
+            >
+              👎
+            </button>
+          </div>
+        )}
+
         <div style={{ marginTop: 22, textAlign: 'center' }}>
           <button
             type="button"
@@ -228,9 +282,33 @@ export function PracticeFlow() {
         <div className="brand">
           <h1 className="brand-name" style={{ margin: 0 }}>{s.appName}</h1>
         </div>
-        <Link href="/history" className="link-pill">
-          {s.historyEntry}
-        </Link>
+        <div className="topbar-actions">
+          {capabilities.auth &&
+            (user ? (
+              <button
+                type="button"
+                className="user-chip"
+                title={`${user.name ?? user.email ?? ''} · 点击退出登录`}
+                onClick={() => void logout()}
+              >
+                {user.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className="user-avatar" src={user.image} alt="" />
+                ) : (
+                  <span className="user-avatar user-avatar--fallback">
+                    {(user.name ?? user.email ?? '?').slice(0, 1).toUpperCase()}
+                  </span>
+                )}
+              </button>
+            ) : (
+              <Link href="/login" className="link-pill">
+                登录
+              </Link>
+            ))}
+          <Link href="/history" className="link-pill">
+            {s.historyEntry}
+          </Link>
+        </div>
       </div>
       <p className="muted" style={{ marginTop: -12, marginBottom: 18 }}>{s.tagline}</p>
 
@@ -304,7 +382,19 @@ export function PracticeFlow() {
           <Link href="/review" className="link-pill">{s.reviewEntry}</Link>
           <Link href="/history" className="link-pill">{s.historyEntry}</Link>
           <Link href="/data" className="link-pill">{s.dataEntry}</Link>
+          {isAdmin && (
+            <Link href="/admin" className="link-pill">题目管理</Link>
+          )}
         </div>
+        {user && capabilities.server && (
+          <p className="tiny" style={{ marginTop: 12 }}>
+            {syncState === 'syncing'
+              ? '正在同步…'
+              : syncState === 'error'
+                ? '同步失败，记录仍在本地，稍后会自动重试'
+                : '已登录，记录会同步到你的账号'}
+          </p>
+        )}
       </div>
     </div>
   );

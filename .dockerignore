@@ -15,3 +15,7 @@ coverage
 
 # 截图只在仓库里给 README 用
 docs/screenshots
+
+# 数据库数据目录与本地环境文件
+data
+.env

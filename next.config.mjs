@@ -1,13 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 静态导出：产出纯静态文件（out/），可托管在任意静态服务器 / GitHub Pages / Cloudflare Pages。
-  // 本项目的 v1 不需要任何后端，所有数据存在浏览器 localStorage 里。
-  output: 'export',
-  images: { unoptimized: true },
-  // 静态托管在子路径时（如 https://user.github.io/memory/）通过环境变量指定。
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
-  trailingSlash: true,
+  // 不再是纯静态导出：加了账号与反馈之后必须有服务端。
+  // 「不配数据库就退化成纯本地模式」由运行时配置决定，见 src/server/config.ts。
+  // 想要纯静态托管（GitHub Pages 等）请用 v1.0.0 tag。
   reactStrictMode: true,
+  // 产出独立的最小运行目录（.next/standalone），镜像里不需要整个 node_modules
+  output: 'standalone',
 };
 
 export default nextConfig;
