@@ -43,6 +43,8 @@ that's evidence about how your memory actually drifts.
 
 ## Quick start
 
+[![Launch on PicoRunner](https://picorunner.com/badges/launch.svg)](https://picorunner.com/launch/?repository=https%3A%2F%2Fgithub.com%2Fglwhappen%2Fdaily-recall)
+
 ```bash
 npm install
 npm run dev          # http://localhost:3000
